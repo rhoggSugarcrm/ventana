@@ -408,7 +408,8 @@ describe('Api client', function () {
             it('should allow passing OAuthToken on URL for 6.7 versions', function() {
 
                 this.sandbox.stub(this.storage, 'get')
-                    .withArgs('AuthAccessToken').returns('token-for-6.7');
+                    .withArgs('AuthAccessToken')
+                    .returns('this-should-be-secret');
 
                 let url = this.api.buildFileURL(attributes, { passOAuthToken: true });
 
@@ -985,7 +986,6 @@ describe('Api client', function () {
         });
 
         it('should upload files', function() {
-
             this.sandbox.stub(this.storage, 'get')
                 .withArgs('AuthAccessToken').returns('file-oauth-token');
 
@@ -993,11 +993,17 @@ describe('Api client', function () {
 
             let xhr = this.sandbox.useFakeXMLHttpRequest();
 
-            this.api.file('create', {
-                module: 'Contacts',
-                id: '1',
-                field: 'picture'
-            }, null, this.callbacks);
+            const fileObject = new Blob(['I am a file']); // IE 11 and Edge don't support the File() constructor
+            this.api.file(
+                'create',
+                {
+                    module: 'Contacts',
+                    id: '1',
+                    field: 'picture'
+                },
+                [{files: [fileObject]}],
+                this.callbacks
+            );
 
             expect(xhr.requests[0].url).toMatch('/rest/v10/Contacts/1/file/picture');
             expect(xhr.requests[0].method).toBe('POST');
@@ -1005,7 +1011,7 @@ describe('Api client', function () {
                 'OAuth-Token': 'file-oauth-token'
             }));
             let resp = this.fixtures['rest/v10/Contacts/1/file/picture'].POST.response;
-            xhr.requests[0].respond(200, {  'Content-Type':'application/json'}, JSON.stringify(resp));
+            xhr.requests[0].respond(200, {'Content-Type': 'application/json'}, JSON.stringify(resp));
 
             expect(stub).toHaveBeenCalledOnce();
             expect(stub).toHaveBeenCalledWith(resp);

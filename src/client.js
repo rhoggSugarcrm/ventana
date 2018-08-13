@@ -265,12 +265,6 @@ _.extend(bulkXHR.prototype, {
 });
 
 /**
-
- *
- *
- */
-
-/**
  * The SugarCRM JavaScript API allows users to interact with SugarCRM instance
  * via its REST interface.
  *
@@ -595,13 +589,13 @@ function SugarApi(args) {
         },
 
         /**
-         * Makes AJAX call via jquery/zepto AJAX API.
+         * Makes AJAX call via jQuery/Zepto AJAX API.
          *
          * @param {string} method CRUD action to make (read, create, update,
          *   delete) are mapped to corresponding HTTP verb: GET, POST, PUT, DELETE.
          * @param {string} url resource URL.
-         * @param {Object} [data] data will be stringified into JSON and
-         *   set to request body.
+         * @param {FormData|Object} [data] Request body contents. If not given as FormData,
+         *   will be stringified into JSON.
          * @param {Object} [callbacks] callbacks object.
          * @param {Object} [options] options for request that map
          *   directly to the jquery/zepto Ajax options.
@@ -652,6 +646,7 @@ function SugarApi(args) {
             };
 
             //Process the iframe transport request
+            // FIXME: should we have jquery.iframe-transport as a dependency/peerDependency?
             if (options.iframe === true) {
                 if (token) {
                     data = data || {};
@@ -1288,27 +1283,23 @@ function SugarApi(args) {
          * }
          * </pre>
          * The `field` property is optional. If not specified, the API fetches the file list.
-         * @param {Object} [$files] jQuery/Zepto DOM elements that carry the $files to upload.
+         * @param {Object} [$files] jQuery/Zepto DOM elements that carry the files to upload.
          * @param {Object} [callbacks] callback object.
          * @param {Object} [options] Request options hash.
-         *
-         * - htmlJsonFormat: Boolean flag indicating if `sugar-html-json` format must be used (`true` by default)
-         * - iframe: Boolean flag indicating if iframe transport is used (`true` by default)
          * See {@link Api#buildFileURL} function for other options.
-         *
          * @return {HttpRequest} The AJAX request.
          * @memberOf Api
          * @instance
          */
         file: function(method, data, $files, callbacks, options) {
-            var ajaxParams = {
+            let ajaxParams = {
                 processData: false,
-                contentType: false
+                contentType: false,
             };
 
-            var fd = new FormData();
+            let fd = new FormData();
 
-            if (data.field && $files && typeof $files[0] != 'undefined' && $files[0].files.length > 0) {
+            if (data.field && $files && !_.isUndefined($files[0]) && $files[0].files && $files[0].files.length > 0) {
                 fd.append(data.field, $files[0].files[0]);
             }
 
