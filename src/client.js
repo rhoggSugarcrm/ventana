@@ -934,11 +934,6 @@ function SugarApi(args) {
                 params.delete_if_fails = true;
             }
 
-            // This is for BWC only. Don't document it and remove as soon as 6.7 is decommissioned.
-            if (options.passOAuthToken) {
-                params.oauth_token = this.getOAuthToken();
-            }
-
             if (options.passDownloadToken) {
                 params.download_token = this.getDownloadToken();
             }
@@ -1398,9 +1393,6 @@ function SugarApi(args) {
          * @param {Function} [callbacks.error] Called on failure.
          * @param {Function} [callbacks.complete] Called when finished.
          * @param {Object} [options] Request options hash.
-         *
-         * - passOAuthToken: Boolean flag indicating if OAuth token must be passed in the URL (`true` by default)
-         *
          * @return {HttpRequest} The AJAX request.
          * @memberOf Api
          * @instance

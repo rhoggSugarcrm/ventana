@@ -405,15 +405,14 @@ describe('Api client', function () {
                 clock.restore();
             });
 
-            it('should allow passing OAuthToken on URL for 6.7 versions', function() {
-
+            it('should never include OAuth tokens in the URL even if passOAuthToken is requested', function() {
                 this.sandbox.stub(this.storage, 'get')
                     .withArgs('AuthAccessToken')
                     .returns('this-should-be-secret');
 
-                let url = this.api.buildFileURL(attributes, { passOAuthToken: true });
+                let url = this.api.buildFileURL(attributes, {passOAuthToken: true});
 
-                expect(url).toEqual('/rest/v10/Notes/note_id/file?oauth_token=token-for-6.7');
+                expect(url).toEqual('/rest/v10/Notes/note_id/file');
 
             });
 
